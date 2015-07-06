@@ -18,20 +18,20 @@ import glob
 import os
 
 # require python fontforge module
-msg = ('Python module `fontforge` is required. Install it with'
-       ' `apt-get install python-fontforge`'
-       ' or `brew install python; brew install fontforge --HEAD`')
-try:
-    import fontforge
-except ImportError:
-    raise Exception(msg)
-
-# require ttfautohint
-# msg = ('Command line tool `ttfautohint` is required. Install it with'
-#        ' `apt-get install ttfautohint` or `brew install ttfautohint`')
-# assert [os.path.join(p, 'ttfautohint')
-#         for p in os.environ.get('PATH').split(':')
-#         if os.path.exists(os.path.join(p, 'ttfautohint'))], msg
+#msg = ('Python module `fontforge` is required. Install it with'
+#       ' `apt-get install python-fontforge`'
+#       ' or `brew install python; brew install fontforge --HEAD`')
+#try:
+#    import fontforge
+#except ImportError:
+#    raise Exception(msg)
+#
+## require ttfautohint
+#msg = ('Command line tool `ttfautohint` is required. Install it with'
+#       ' `apt-get install ttfautohint` or `brew install ttfautohint`')
+#assert [os.path.join(p, 'ttfautohint')
+#        for p in os.environ.get('PATH').split(':')
+#        if os.path.exists(os.path.join(p, 'ttfautohint'))], msg
 
 # require libmagic
 import ctypes
