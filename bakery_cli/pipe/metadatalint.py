@@ -40,6 +40,7 @@ class MetadataLint(object):
 
     def write_lint_results(self, testsresult):
         _out_yaml = op.join(self.builddir, OUT_YAML)
+        print("_out_yaml: ", _out_yaml)
         l = open(_out_yaml, 'w')
         l.write(yaml.safe_dump(testsresult))
         l.close()
