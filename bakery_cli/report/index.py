@@ -236,17 +236,22 @@ def generate(config):
         return
 
     directory = UpstreamDirectory(config['path'])
-    if op.exists(op.join(config['path'], 'METADATA.json.new')):
-        metadata_file = open(op.join(config['path'], 'METADATA.json.new')).read()
-    else:
-        metadata_file = open(op.join(config['path'], 'METADATA.json')).read()
-    family_metadata = Metadata.get_family_metadata(metadata_file)
-    faces = []
-    for f in family_metadata.fonts:
-        faces.append({'name': f.full_name,
-                      'basename': f.post_script_name,
-                      'path': f.filename,
-                      'meta': f})
+
+    #Experimental: remove this broken piece of code (METADATA.json is missing)
+    report_family_metadata = False
+
+    if report_family_metadata:
+        if op.exists(op.join(config['path'], 'METADATA.json.new')):
+            metadata_file = open(op.join(config['path'], 'METADATA.json.new')).read()
+        else:
+            metadata_file = open(op.join(config['path'], 'METADATA.json')).read()
+        family_metadata = Metadata.get_family_metadata(metadata_file)
+        faces = []
+        for f in family_metadata.fonts:
+            faces.append({'name': f.full_name,
+                        'basename': f.post_script_name,
+                        'path': f.filename,
+                        'meta': f})
 
     metadata = yaml.load(open(op.join(config['path'], 'METADATA.yaml')))
     upstreamdata = {}
@@ -295,9 +300,12 @@ def generate(config):
                                        'grouped': ftables_data.grouped,
                                        'delta': ftables_data.delta},
                                       'fonts_tables_grouped.json')
-    for face in family_metadata.fonts:
-        face_template = "@font-face {{ font-family: {}; src: url(fonts/{});}}\n".format(face.metadata_object['postScriptName'], face.metadata_object['filename'])
-        report_app.write_file(face_template, op.join(report_app.css_dir, 'faces.css'), mode='a')
+
+    #Experimental: remove this broken piece of code (METADATA.json is missing)
+    if report_family_metadata:
+        for face in family_metadata.fonts:
+            face_template = "@font-face {{ font-family: {}; src: url(fonts/{});}}\n".format(face.metadata_object['postScriptName'], face.metadata_object['filename'])
+            report_app.write_file(face_template, op.join(report_app.css_dir, 'faces.css'), mode='a')
 
     fonts_serialized = dict([(str(path), font_factory_instance_to_dict(fontaine)) for path, fontaine in fonts])
     report_app.summary_page.dump_file(fonts_serialized, 'fontaine_fonts.json')
