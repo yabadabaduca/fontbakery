@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(description=description)
 try:
     commit = os.environ['TRAVIS_COMMIT']
 except KeyError:
-    print('TRAVIS_PULL_REQUEST shell environment variable must be set.',
+    print('TRAVIS_COMMIT shell environment variable must be set.',
           file=sys.stderr)
     sys.exit(1)
 
@@ -45,9 +45,11 @@ def shell(cmd):
         print(stderr, end="\n")
 
 if os.environ.get('TRAVIS_PULL_REQUEST', '').lower() == 'true':
+    print('TRAVIS_PULL_REQUEST is true', file=sys.stderr)
     sys.exit(1)
 
 if 'GH_TOKEN' not in os.environ:
+    print('GH_TOKEN shell environment variable must be set.', file=sys.stderr)
     sys.exit(1)
 
 repo = 'https://github.com/%s.git' % os.environ['TRAVIS_REPO_SLUG']
