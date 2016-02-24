@@ -222,6 +222,8 @@ def main():
     help="Debug mode, just print results")
   parser.add_argument("-e", "--existing", default=False, 
     help="Path to existing font-metadata.csv")
+  parser.add_argument("-o", "--output", default="output.csv",
+    help="Filename for outputting modified font metadata in csv format.")
   args = parser.parse_args()
 
   # show help if no args
