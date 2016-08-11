@@ -327,12 +327,25 @@ def main():
       ('OS/2', 'sTypoLineGap')
     ]
 
+    header = ["Parameter"]
+    rows = {}
     for f in fonts:
       ttfont = ttLib.TTFont(f)
-      print ("## {}".format(f))
+      header.append(f)
       for table, field in entries:
-        print ("{} {}: {}".format(table, field, getattr(ttfont[table], field)))
-      print()
+        key = "{}.{}".format(table, field)
+        if key not in rows.keys():
+          rows[key] = [key]
+        rows[key].append(str(getattr(ttfont[table], field)))
+
+    results_table  = "| {} |\n".format(' | '.join(header))
+    results_table += "|-----------|" + len(fonts) * "-----------|" + "\n"
+    for param in rows.keys():
+      results_table += "| {} |\n".format(' | '.join(rows[param]))
+    results_table += "\n"
+
+    print(results_table)
+
 
 if __name__ == '__main__':
   main()
