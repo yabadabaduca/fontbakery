@@ -1672,6 +1672,9 @@ def main():
                            IS_FIXED_WIDTH_NOT_MONOSPACED)
         assert_table_entry('hhea', 'advanceWidthMax', width_max)
         if font['OS/2'].panose.bProportion == PANOSE_PROPORTION_MONOSPACED:
+            # the idea here is that the following assert statement will
+            # generate an error and hotfix by setting the
+            # panose.bProportion value to PANOSE_PROPORTION_ANY
             assert_table_entry('OS/2',
                                'panose.bProportion',
                                PANOSE_PROPORTION_ANY)
