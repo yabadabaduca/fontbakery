@@ -684,12 +684,19 @@ def check_bit_entry(fb, font, table, attr, expected, bitmask, bitname):
       fb.error("{} should be {}.".format(name_str, expected_str))
 
 
+def fontbakery_check(func):
+  def inner_func(*args, **kwargs):
+    args[0].new_check(func.__doc__)
+    func(*args, **kwargs)
+  return inner_func
+
 # =======================================================================
 # The following functions implement each of the individual checks per-se.
 # =======================================================================
 
+@fontbakery_check
 def check_files_are_named_canonically(fb, fonts_to_check):
-  fb.new_check("Checking files are named canonically")
+  '''Checking files are named canonically'''
   not_canonical = []
 
   for font_file in fonts_to_check:
@@ -732,8 +739,11 @@ def check_files_are_named_canonically(fb, fonts_to_check):
            '').format('\n  '.join(not_canonical)))
 
 
+@fontbakery_check
 def check_all_files_in_a_single_directory(fb, fonts_to_check):
-  '''If the set of font files passed in the command line
+  '''Checking all files are in the same directory
+
+     If the set of font files passed in the command line
      is not all in the same directory, then we warn the user
      since the tool will interpret the set of files
      as belonging to a single family (and it is unlikely
@@ -741,7 +751,6 @@ def check_all_files_in_a_single_directory(fb, fonts_to_check):
      spreaded in several separate directories).
   '''
   global in_memory, target_dir
-  fb.new_check("Checking all files are in the same directory")
 
   failed = False
   target_dir = None
