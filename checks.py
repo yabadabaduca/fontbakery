@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # Copyright 2016 The Fontbakery Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,6 @@ import csv
 import re
 import defusedxml.lxml
 from fontTools import ttLib
-from unidecode import unidecode
 from lxml.html import HTMLParser
 import plistlib
 from targetfont import TargetFont
@@ -559,7 +558,7 @@ def check_main_entries_in_the_name_table(fb, font, fullpath):
                                         PLATID_STR[plat],
                                         plat,
                                         expected_value,
-                                        unidecode(string)))
+                                        string))
   if failed is False:
     fb.ok("Main entries in the name table"
           " conform to expected format.")
@@ -589,13 +588,13 @@ def check_OS2_achVendID(fb, font, registered_vendor_ids):
           if manufacturer != registered_vendor_ids[vid].strip():
             fb.warning("VendorID string '{}' does not match"
                        " nameID {} (Manufacturer Name): '{}'".format(
-                         unidecode(registered_vendor_ids[vid]).strip(),
+                         registered_vendor_ids[vid].strip(),
                          NAMEID_MANUFACTURER_NAME,
-                         unidecode(manufacturer)))
+                         manufacturer))
       fb.ok(("OS/2 VendorID is '{}' and registered to '{}'."
              " Is that legit?"
              ).format(vid,
-                      unidecode(registered_vendor_ids[vid])))
+                      registered_vendor_ids[vid]))
     elif vid.lower() in [i.lower() for i in registered_vendor_ids.keys()]:
       fb.error(("OS/2 VendorID is '{}' but this is registered"
                 " with different casing."
@@ -621,9 +620,8 @@ def check_name_entries_symbol_substitutions(fb, font):
                      (u"\u00ae", '(r)'),
                      (u"\u2122", '(tm)')]
   for name in font['name'].names:
-    new_name = name
-    original = unicode(name.string, encoding=name.getEncoding())
-    string = unicode(name.string, encoding=name.getEncoding())
+    original = name.string.decode(name.getEncoding())
+    string = name.string.decode(name.getEncoding())
     for mark, ascii_repl in replacement_map:
       new_string = string.replace(mark, ascii_repl)
       if string != new_string:
@@ -631,12 +629,11 @@ def check_name_entries_symbol_substitutions(fb, font):
           fb.hotfix(("NAMEID #{} contains symbol that was"
                      " replaced by '{}'").format(name.nameID,
                                                  ascii_repl))
-          string = new_string
+          name.string = new_string.encode(name.getEncoding())
         else:
           fb.error(("NAMEID #{} contains symbol that should be"
                     " replaced by '{}'").format(name.nameID,
                                                 ascii_repl))
-    new_name.string = string.encode(name.getEncoding())
     if string != original:
       failed = True
   if not failed:
@@ -753,8 +750,8 @@ def check_copyright_entries_match_license(fb, found, file_path, font):
                                     NAMEID_LICENSE_DESCRIPTION,
                                     nameRecord.platformID,
                                     PLATID_STR[nameRecord.platformID],
-                                    unidecode(value),
-                                    unidecode(placeholder)))
+                                    value,
+                                    placeholder))
               font['name'].setName(placeholder,
                                    NAMEID_LICENSE_DESCRIPTION,
                                    font['name'].names[i].platformID,
@@ -771,8 +768,8 @@ def check_copyright_entries_match_license(fb, found, file_path, font):
                                    NAMEID_LICENSE_DESCRIPTION,
                                    nameRecord.platformID,
                                    PLATID_STR[nameRecord.platformID],
-                                   unidecode(value),
-                                   unidecode(placeholder)))
+                                   value,
+                                   placeholder))
 
           if value == placeholder and license_exists is False:
             fb.info(('Valid licensing specified'
@@ -1090,9 +1087,9 @@ def check_with_ftxvalidator(fb, font_file):
                                              stderr=subprocess.STDOUT)
         fb.error("ftxvalidator output follows:\n\n{}\n".format(ftx_output))
 
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError:
       fb.info(("ftxvalidator returned an error code. Output follows :"
-               "\n\n{}\n").format(e.output))
+               "\n\n{}\n").format(sys.exc_info()[1].output))
     except OSError:
       fb.warning("ftxvalidator is not available!")
 
@@ -1110,18 +1107,18 @@ def check_with_otsanitise(fb, font_file):
         fb.error("ot-sanitise output follows:\n\n{}\n".format(ots_output))
       else:
         fb.ok("ot-sanitise passed this file")
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError:
         fb.error(("ot-sanitise returned an error code. Output follows :"
-                  "\n\n{}\n").format(e.output))
-    except OSError, e:
+                  "\n\n{}\n").format(sys.exc_info()[1].output))
+    except OSError:
       # This is made very prominent with additional line breaks
-      fb.warning("\n\n\not-santise is not available!"
-                 " You really MUST check the fonts with this tool."
-                 " To install it, see"
-                 " https://github.com/googlefonts"
-                 "/gf-docs/blob/master/ProjectChecklist.md#ots"
-                 " Actual error message was: "
-                 "'{}'\n\n".format(e))
+      fb.warning(("\n\n\not-santise is not available!"
+                  " You really MUST check the fonts with this tool."
+                  " To install it, see"
+                  " https://github.com/googlefonts"
+                  "/gf-docs/blob/master/ProjectChecklist.md#ots"
+                  " Actual error message was: "
+                  "'{}'\n\n").format(sys.exc_info()[1].output))
 
 
 def check_with_msfontvalidator(fb, font_file):
@@ -1150,9 +1147,9 @@ def check_with_msfontvalidator(fb, font_file):
                                                         report.get("Details")))
         else:
           fb.info("MS-FontVal: {}".format(report.get("Message")))
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError:
       fb.info(("Microsoft Font Validator returned an error code."
-               " Output follows :\n\n{}\n").format(e.output))
+               " Output follows :\n\n{}\n").format(sys.exc_info()[1].output))
     except OSError:
       fb.warning("Mono runtime and/or "
                  "Microsoft Font Validator are not available!")
@@ -1688,14 +1685,15 @@ def check_with_pyfontaine(fb, font_file):
                                                  "--set", "gwf_latin",
                                                  font_file],
                                                 stderr=subprocess.STDOUT)
+      fontaine_output = fontaine_output.decode("utf-8")
       if "Support level: full" not in fontaine_output:
         fb.error(("pyfontaine output follows:\n\n"
                   "{}\n").format(fontaine_output))
       else:
         fb.ok("pyfontaine passed this file")
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError:
       fb.error(("pyfontaine returned an error code. Output follows :"
-                "\n\n{}\n").format(e.output))
+                "\n\n{}\n").format(sys.exc_info()[1].output))
     except OSError:
       # This is made very prominent with additional line breaks
       fb.warning("\n\n\npyfontaine is not available!"
@@ -1890,6 +1888,7 @@ def check_font_has_latest_ttfautohint_applied(fb, font, ttfautohint_missing):
                 "-V"]  # print version info
     ttfa_output = subprocess.check_output(ttfa_cmd,
                                           stderr=subprocess.STDOUT)
+    ttfa_output = ttfa_output.decode("utf-8")
     installed_ttfa = installed_ttfa_version(ttfa_output)
     try:
       if installed_version_is_newer(installed_ttfa,
@@ -2373,14 +2372,14 @@ def check_font_enables_smart_dropout_control(fb, font):
   '''
   fb.new_check("072", "Font enables smart dropout control"
                       " in 'prep' table instructions?")
-  instructions = "\xb8\x01\xff\x85\xb0\x04\x8d"
+  instructions = b"\xb8\x01\xff\x85\xb0\x04\x8d"
   if "CFF " in font:
     fb.skip("Not applicable to a CFF font.")
   else:
     try:
       bytecode = font['prep'].program.getBytecode()
     except KeyError:
-      bytecode = ''
+      bytecode = b''
 
     if instructions in bytecode:
       fb.ok("Program at 'prep' table contains instructions"
@@ -2931,13 +2930,13 @@ def check_Copyright_notice_matches_canonical_pattern(fb, f):
                   " Expected pattern is:"
                   " 'Copyright 2016 Author Name (name@site.com)'\n"
                   "But detected copyright string is:"
-                  " '{}'").format(unidecode(f.copyright)))
+                  " '{}'").format(f.copyright))
     else:
       fb.error(("METADATA.pb: Copyright notices should match"
                 " the folowing pattern:"
                 " 'Copyright 2016 Author Name (name@site.com)'\n"
                 "But instead we have got:"
-                " '{}'").format(unidecode(f.copyright)))
+                " '{}'").format(f.copyright))
 
 
 def check_Copyright_notice_does_not_contain_Reserved_Name(fb, f):
@@ -2947,7 +2946,7 @@ def check_Copyright_notice_does_not_contain_Reserved_Name(fb, f):
     fb.warning(("METADATA.pb: copyright field ('{}')"
                 " contains 'Reserved Font Name'."
                 " This is an error except in a few specific"
-                " rare cases.").format(unidecode(f.copyright)))
+                " rare cases.").format(f.copyright))
   else:
     fb.ok('METADATA.pb copyright field'
           ' does not contain "Reserved Font Name"')

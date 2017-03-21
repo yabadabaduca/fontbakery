@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # Copyright 2016 The Fontbakery Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -75,7 +75,7 @@ def fontbakery_check_ttf(config):
 #         Do we expect to remove duplicates? It does not seem very important.
 #         Anyway... this probably need some extra work to get the
 #         font objects sorted by filename field...
-  fonts_to_check.sort()
+#  fonts_to_check.sort()
 
   if fonts_to_check == []:
     logging.error("None of the fonts are valid TrueType files!")

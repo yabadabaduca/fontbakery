@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import io
 import os
 import re
 import sys
@@ -23,9 +24,8 @@ from constants import PLATFORM_ID_WINDOWS,\
                       PLAT_ENC_ID_UCS4
 from fontTools import ttLib
 from fontTools.pens.areaPen import AreaPen
-from StringIO import StringIO
 from targetfont import TargetFont
-from urllib import urlopen
+from urllib.request import urlopen
 from zipfile import ZipFile
 import tempfile
 
@@ -151,23 +151,23 @@ def glyphHasInk(font, name):
 
 
 def get_FamilyProto_Message(path):
-    try:
+    if 1:#try:
       from fonts_public_pb2 import FamilyProto
       from google.protobuf import text_format
       message = FamilyProto()
       text_data = open(path, "rb").read()
-      text_format.Merge(text_data, message)
+      text_format.Merge(text_data.decode('utf-8'), message)
       return message
-    except:
-      sys.exit("Needs protobuf.\n\nsudo pip install protobuf")
+    #except:
+    #  sys.exit("Needs protobuf.\n\nsudo pip install protobuf")
 
 
 def save_FamilyProto_Message(path, message):
-    try:
+    if 1:#try:
       from google.protobuf import text_format
-      open(path, "wb").write(text_format.MessageToString(message))
-    except:
-      sys.exit("Needs protobuf.\n\nsudo pip install protobuf")
+      open(path, "wb").write(text_format.MessageToString(message).encode('utf-8'))
+    #except:
+    #  sys.exit("Needs protobuf.\n\nsudo pip install protobuf")
 
 
 def fetch_vendorID_list(logging):
@@ -239,7 +239,7 @@ def download_family_from_GoogleFontDirectory(family_name):
     url = '%s%s' % (url_prefix, family_name.replace(' ', '+'))
     request = urlopen(url)
     # print(request.text)
-    return ZipFile(StringIO(request.read()))
+    return ZipFile(io.StringIO(request.read()))
 
 
 def fonts_from_zip(zipfile):
