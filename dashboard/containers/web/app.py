@@ -106,17 +106,16 @@ def family_details(familyname):
     for f in fonts_dev + fonts_prod:
       if '-' in f['fontname'] and '.ttf' in f['fontname']:
         f['stylename'] = f['fontname'].split('-')[1].split('.ttf')[0]
-      else:
-        f['stylename'] = "{} (bad name)".format(f['fontname'])
 
     # I think that the rearrangement of data below could be avoided by crafting a smarter database schema...
     fonts = []
     for p in fonts_prod:
+      dev_font = None
       for d in fonts_dev:
         if d['stylename'] == p['stylename']:
-          fonts.append([p, d])
+          dev_font = d
           break
-      fonts.append([p, None])
+      fonts.append([p, dev_font])
 
     return render_template("family_details.html",
                            delta=delta,

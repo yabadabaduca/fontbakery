@@ -81,7 +81,7 @@ def save_output_on_database(commit, output):
 
 def save_results_on_database(f, fonts_dir, commit, i, family_stats, date):
 #  print ("Invoked 'save_results_on_database' with f='{}'".format(f))
-  if f[-20:] != ".ttf.fontbakery.json":
+  if f[-16:] != ".fontbakery.json":
 #    print("Not a report file.")
     return
 
